@@ -1,5 +1,4 @@
-﻿
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 var fileName = "E:\\work\\c#\\AdventOfCode2023CSharp\\AdventOfCode2023CSharp\\cubes.txt";
 
@@ -22,16 +21,19 @@ try
     }
     
     var gameIdTotal = 0;
-
-    var gamePossibleTracker = true;
-    var gamePossible = true;
+    
 
     foreach (var game in collectedGames)
     {
-        Console.WriteLine($"Game: {game.Key}");
+        //Console.WriteLine($"Game: {game.Key}");
+
+        var redGems = 0;
+        var greenGems = 0;
+        var blueGems = 0;
         
         foreach (var part in game.Value)
         {
+            
             var colorGems = part.Split(',').ToList();
             foreach (var colorGem in colorGems)
             {
@@ -43,33 +45,34 @@ try
                 {
                     var gemNumber = new Regex(@"\d+");
                     var gemMatch = gemNumber.Match(colorGem);
-                    gamePossibleTracker = IsGamePossible(int.Parse(gemMatch.Value), match.Value);
+                    if (int.Parse(gemMatch.Value) > redGems)
+                    {
+                        redGems = int.Parse(gemMatch.Value);
+                    }
+                    
                 }else if (match.Value == "blue")
                 {
                     var gemNumber = new Regex(@"\d+");
                     var gemMatch = gemNumber.Match(colorGem);
-                    gamePossibleTracker = IsGamePossible(int.Parse(gemMatch.Value), match.Value);
+                    if (int.Parse(gemMatch.Value) > blueGems)
+                    {
+                        blueGems = int.Parse(gemMatch.Value);
+                    }
                 }else if (match.Value == "green")
                 {
                     var gemNumber = new Regex(@"\d+");
                     var gemMatch = gemNumber.Match(colorGem);
-                    gamePossibleTracker = IsGamePossible(int.Parse(gemMatch.Value), match.Value);
-                }
-                
-                if (gamePossibleTracker == false)
-                {
-                    gamePossible = false;
+                    if (int.Parse(gemMatch.Value) > greenGems)
+                    {
+                        greenGems = int.Parse(gemMatch.Value);
+                    }
                 }
             }
+            
         }
 
-        if (gamePossible)
-        {
-            Console.WriteLine($"Game {game.Key} is possible");
-            gameIdTotal += game.Key;
-        }
-        
-        gamePossible = true;
+        var gamePower = redGems * blueGems * greenGems;
+        gameIdTotal += gamePower;
     }
     
     Console.WriteLine($"Total game id: {gameIdTotal}");
@@ -78,37 +81,4 @@ catch (IOException e)
 {
     Console.WriteLine("The file could not be read:");
     Console.WriteLine(e.Message);
-}
-
-static bool IsGamePossible(int gemNumber, string gemColor)
-{
-    const int redGemsTotal = 12;
-    const int blueGemsTotal = 14;
-    const int greenGemsTotal = 13;
-
-    if (gemColor == "red")
-    {
-        if (gemNumber > redGemsTotal)
-        {
-            return false;
-        }
-    }
-    
-    if (gemColor == "green")
-    {
-        if (gemNumber > greenGemsTotal)
-        {
-            return false;
-        }
-    }
-    
-    if (gemColor == "blue")
-    {
-        if (gemNumber > blueGemsTotal)
-        {
-            return false;
-        }
-    }
-
-    return true;
 }
