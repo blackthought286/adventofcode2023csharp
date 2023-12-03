@@ -22,11 +22,6 @@ static Dictionary<int, int> FindCalibrationValuesInString(string str)
         
     var sortedWords = matchedWords.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
 
-    // foreach (var word in sortedWords)
-    // {
-    //     Console.WriteLine($"{word.Key} and {word.Value}");
-    // }
-
     return sortedWords;
 
 }
@@ -55,11 +50,8 @@ try
                 
         var first = calibValues.Values.First();
         var last = calibValues.Values.Last();
-        Console.WriteLine(cv);
-        Console.WriteLine($"{first} and {last}");
                 
         var concatenated = ConcatenateIntegers(first, last);
-        Console.WriteLine(concatenated);
 
         sum += concatenated;
     }
