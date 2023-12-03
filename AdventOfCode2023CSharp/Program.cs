@@ -1,70 +1,114 @@
-﻿using System.Text.RegularExpressions;
+﻿
+using System.Text.RegularExpressions;
 
-static Dictionary<int, int> FindCalibrationValuesInString(string str)
-{
-        
-    // var alphaNumericToMatch = new Dictionary<string, int>()
-    // {
-    //     {"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"five", 5}, {"six", 6}, {"seven", 7}, {"eight", 8}, {"nine", 9}, {"1", 1}, {"2", 2},
-    //     {"3", 3}, {"4", 4}, {"5", 5}, {"6", 6}, {"7", 7}, {"8", 8}, {"9", 9}
-    // };
-    
-    var alphaNumericToMatch = new Dictionary<string, int>()
-    {
-        {"1", 1}, {"2", 2}, {"3", 3}, {"4", 4}, {"5", 5}, {"6", 6}, {"7", 7}, {"8", 8}, {"9", 9}
-    };
-        
-    var matchedWords = new Dictionary<int, int>();
-        
-    foreach (var word in alphaNumericToMatch)
-    {
-        Regex rx = new Regex(word.Key);
-        foreach (Match match in rx.Matches(str))
-        {
-            matchedWords.Add(match.Index, word.Value);
-        }
-    }
-        
-    var sortedWords = matchedWords.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
+var fileName = "E:\\work\\c#\\AdventOfCode2023CSharp\\AdventOfCode2023CSharp\\cubes.txt";
 
-    return sortedWords;
+char[] delimiters = { ':', ';' };
 
-}
-
-static int ConcatenateIntegers(int first, int second)
-{
-    var firstAsString = first.ToString();
-    var secondAsString = second.ToString();
-
-    var concatenated = firstAsString + secondAsString;
-
-    return int.Parse(concatenated);
-}
-
-string fileName = "E:\\work\\c#\\AdventOfCode2023CSharp\\AdventOfCode2023CSharp\\calibrationvalues.txt";
+var collectedGames = new Dictionary<int, List<string>>();
 
 try
 {
-    var calibrationValues = File.ReadAllLines(fileName);
-            
-    var sum = 0;
-            
-    foreach (var cv in calibrationValues)
-    {
-        var calibValues = FindCalibrationValuesInString(cv);
-                
-        var first = calibValues.Values.First();
-        var last = calibValues.Values.Last();
-                
-        var concatenated = ConcatenateIntegers(first, last);
+    string[] text = File.ReadAllLines(fileName);
 
-        sum += concatenated;
+    foreach (var s in text)
+    {
+        var parts = s.Split(delimiters).ToList();
+        var regex = new Regex(@"\d+");
+        var match = regex.Match(parts[0]);
+        parts.RemoveAt(0);
+        
+        collectedGames.Add(int.Parse(match.Value), parts);
     }
-            
-    Console.WriteLine($"Sum: {sum}");
+    
+    var gameIdTotal = 0;
+
+    var gamePossibleTracker = true;
+    var gamePossible = true;
+
+    foreach (var game in collectedGames)
+    {
+        Console.WriteLine($"Game: {game.Key}");
+        
+        foreach (var part in game.Value)
+        {
+            var colorGems = part.Split(',').ToList();
+            foreach (var colorGem in colorGems)
+            {
+                var regex = new Regex(@"(red|blue|green)");
+                var match = regex.Match(colorGem);
+                
+                // convert this to a switch statement
+                if (match.Value == "red")
+                {
+                    var gemNumber = new Regex(@"\d+");
+                    var gemMatch = gemNumber.Match(colorGem);
+                    gamePossibleTracker = IsGamePossible(int.Parse(gemMatch.Value), match.Value);
+                }else if (match.Value == "blue")
+                {
+                    var gemNumber = new Regex(@"\d+");
+                    var gemMatch = gemNumber.Match(colorGem);
+                    gamePossibleTracker = IsGamePossible(int.Parse(gemMatch.Value), match.Value);
+                }else if (match.Value == "green")
+                {
+                    var gemNumber = new Regex(@"\d+");
+                    var gemMatch = gemNumber.Match(colorGem);
+                    gamePossibleTracker = IsGamePossible(int.Parse(gemMatch.Value), match.Value);
+                }
+                
+                if (gamePossibleTracker == false)
+                {
+                    gamePossible = false;
+                }
+            }
+        }
+
+        if (gamePossible)
+        {
+            Console.WriteLine($"Game {game.Key} is possible");
+            gameIdTotal += game.Key;
+        }
+        
+        gamePossible = true;
+    }
+    
+    Console.WriteLine($"Total game id: {gameIdTotal}");
 }
-catch (Exception e)
+catch (IOException e)
 {
-    Console.WriteLine(e);
-    throw;
+    Console.WriteLine("The file could not be read:");
+    Console.WriteLine(e.Message);
+}
+
+static bool IsGamePossible(int gemNumber, string gemColor)
+{
+    const int redGemsTotal = 12;
+    const int blueGemsTotal = 14;
+    const int greenGemsTotal = 13;
+
+    if (gemColor == "red")
+    {
+        if (gemNumber > redGemsTotal)
+        {
+            return false;
+        }
+    }
+    
+    if (gemColor == "green")
+    {
+        if (gemNumber > greenGemsTotal)
+        {
+            return false;
+        }
+    }
+    
+    if (gemColor == "blue")
+    {
+        if (gemNumber > blueGemsTotal)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
